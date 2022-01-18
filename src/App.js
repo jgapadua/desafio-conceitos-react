@@ -26,6 +26,22 @@ function App(){
     setRepositories([  ... repositories, repository]);
     }
 
+    async function handleLikeRepository(id) {
+      const response = await api.post(`repositories/${id}/like`);
+  
+      const likedRepository = response.data;
+  
+      const repositoryLikedIndex = repositories.findIndex(
+        (repository) => repository.id === id
+      );
+  
+      const updatedRepositories = [...repositories];
+  
+      updatedRepositories[repositoryLikedIndex] = likedRepository;
+  
+      setRepositories(updatedRepositories);
+    }
+
   async function handleRemoveRepository(id) {
     await api.delete(`repositories/${id}`);
 
@@ -34,12 +50,34 @@ function App(){
     ))
   }
 
+  async function handleUpdateRepository(id) {
+    const response = await api.put(`repositories/${id}`,{
+      title: `Novo repositório ${Date.now()}`,
+      url: `https://github.com/jgapadua/${Date.now()}`,
+      techs: ["ReactJS", "React Native"] 
+  });
+  const updatedRepository = response.data;
+
+  const repositoryIndex = repositories.findIndex(
+    (repository) => repository.id === id
+  );
+
+  const updatedRepositories = [...repositories];
+
+  updatedRepositories[repositoryIndex] = updatedRepository;
+
+  setRepositories(updatedRepositories);
+}
+
+
   return (
     <>
        <Header title="Repositórios "/>
       <ul data-testid="repository-list">
       {repositories.map(repository => <li key ={repository.id}>{repository.title}<button onClick={() => handleRemoveRepository(repository.id)}>
             Remover
+          </button><button onClick={() => handleUpdateRepository(repository.id)}>
+            Alterar
           </button></li>)}
         
       </ul>
