@@ -8,40 +8,38 @@ import Header from './components/Header';
 function App(){
   const [repositories, setRepositories] = useState([]);
 
-  useEffect(() =>{
-      api.get('repositories').then( response =>{
-        setRepositories(response.data);
-      });
-  }, [ ]);
-  
-  async function handleAddRepository() {
+  useEffect(() => {
+    api.get('repositories').then((response) => setRepositories(response.data));
+  }, []);
+
+  async function handleAddRepository(){
     const response = await api.post('repositories',{
       title: `Novo repositório ${Date.now()}`,
-      url: "https://github.com/jgapadua/umbriel",
-      techs: ["ReactJS"] 
-    })
+      url: `https://github.com/jgapadua/${Date.now()}`,
+      techs: ["ReactJS", 'Node.js'] 
+  });
+ 
+  const repository = response.data;
     
-    const repository = response.data;
-    
-    setRepositories([  ... repositories, repository]);
-    }
+  setRepositories([  ... repositories, repository]);
+  }
 
-    async function handleLikeRepository(id) {
-      const response = await api.post(`repositories/${id}/like`);
-  
-      const likedRepository = response.data;
-  
-      const repositoryLikedIndex = repositories.findIndex(
-        (repository) => repository.id === id
-      );
-  
-      const updatedRepositories = [...repositories];
-  
-      updatedRepositories[repositoryLikedIndex] = likedRepository;
-  
-      setRepositories(updatedRepositories);
-    }
+  async function handleLikeRepository(id) {
+    const response = await api.post(`repositories/${id}/like`);
 
+    const likedRepository = response.data;
+
+    const repositoryLikedIndex = repositories.findIndex(
+      (repository) => repository.id === id
+    );
+
+    const updatedRepositories = [...repositories];
+
+    updatedRepositories[repositoryLikedIndex] = likedRepository;
+
+    setRepositories(updatedRepositories);
+  }
+  
   async function handleRemoveRepository(id) {
     await api.delete(`repositories/${id}`);
 
@@ -74,15 +72,33 @@ function App(){
     <>
        <Header title="Repositórios "/>
       <ul data-testid="repository-list">
-      {repositories.map(repository => <li key ={repository.id}>{repository.title}<button onClick={() => handleRemoveRepository(repository.id)}>
+      {repositories.map(repository => <li key ={repository.id}>{repository.title}
+      <button  className="btnrem" onClick={() => handleRemoveRepository(repository.id)}>
             Remover
-          </button><button onClick={() => handleUpdateRepository(repository.id)}>
+          </button>
+          <button className="btnupd" onClick={() => handleUpdateRepository(repository.id)} >
             Alterar
-          </button></li>)}
+          </button>
+          <div className="techsContainer">
+          {repository.techs.map((tech) => (
+            <p className="tech">
+            {tech}
+            </p>
+             ))}
+          </div>
+          <div className="likesContainer">
+            <p className="likeText">
+            {repository.likes} curtida{repository.likes !== 1 && "s"}
+            </p>
+          </div>
+          <button className="btnlike" onClick={() => handleLikeRepository(repository.id)} >
+          Curtir
+          </button>
+          </li>)}
         
       </ul>
 
-      <button onClick={handleAddRepository}>Adicionar</button>
+      <button onClick={handleAddRepository} className="btnadd">Adicionar</button>
     </>
   );
 }
